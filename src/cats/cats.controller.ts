@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Header,
+  HostParam,
   HttpCode,
   Logger,
   Param,
@@ -11,7 +12,7 @@ import {
 import type { HttpRedirectResponse } from '@nestjs/common';
 import type { Request } from 'express';
 
-@Controller({ host: 'nest-documentation.onrender.com', path: 'cats' })
+@Controller({ host: ':host.onrender.com', path: 'cats' })
 export class CatsController {
   @Get('ab{*splash}cd')
   findAll(): HttpRedirectResponse {
@@ -26,9 +27,14 @@ export class CatsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number, @Req() request: Request) {
+  findOne(
+    @Param('id') id: number,
+    @Req() request: Request,
+    @HostParam('host') host: string,
+  ) {
     Logger.log(request.host);
+    Logger.debug(request.hostname);
 
-    return `This actions returns a #${id} cat`;
+    return `This actions returns a #${id} cat from host ${host}`;
   }
 }
