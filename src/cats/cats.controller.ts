@@ -11,7 +11,7 @@ import {
 import type { HttpRedirectResponse } from '@nestjs/common';
 import type { Request } from 'express';
 
-@Controller({ path: 'cats' })
+@Controller({ host: 'https://nest-documentation.onrender.com', path: 'cats' })
 export class CatsController {
   @Get('ab{*splash}cd')
   findAll(): HttpRedirectResponse {
