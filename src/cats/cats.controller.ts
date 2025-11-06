@@ -1,40 +1,67 @@
 import {
+  Body,
   Controller,
   Get,
   Header,
   HostParam,
-  HttpCode,
-  Logger,
   Param,
   Post,
-  Req,
+  Query,
 } from '@nestjs/common';
-import type { HttpRedirectResponse } from '@nestjs/common';
-import type { Request } from 'express';
+import { Observable, of } from 'rxjs';
+import { CreateCatDto } from './create-cat.dto';
 
-@Controller({ host: ':host.onrender.com', path: 'cats' })
+class Cat {
+  constructor(
+    readonly id: number,
+    readonly name: string,
+    readonly age: number,
+    readonly breed: string,
+  ) {}
+}
+
+@Controller({ path: 'cats' })
 export class CatsController {
+  cats: Cat[] = [];
+
   @Get('ab{*splash}cd')
-  findAll(): HttpRedirectResponse {
-    return { url: 'http://localhost:8080', statusCode: 300 };
+  findAll(
+    @Query('filter[where][age]') age: number,
+    @Query('filter[where][breed]') breed: string,
+  ): Observable<Cat[]> {
+    const cats: Cat[] = [];
+    const stream: Observable<Cat[]> = of(cats);
+
+    for (const cat of this.cats) {
+      if (
+        (!age && !breed) ||
+        (age && cat.age == age) ||
+        (breed && cat.breed == breed)
+      ) {
+        cats.push(cat);
+      }
+    }
+
+    return stream;
   }
 
   @Post()
-  @HttpCode(204)
   @Header('Cache-Control', 'no-store')
-  create() {
-    return 'This action adds a cat';
+  create(@Body() createCatDto: CreateCatDto) {
+    const newCat = new Cat(
+      this.cats.length,
+      createCatDto.name,
+      createCatDto.age,
+      createCatDto.breed,
+    );
+
+    this.cats.push(newCat);
+
+    return newCat;
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: number,
-    @Req() request: Request,
-    @HostParam('host') host: string,
-  ) {
-    Logger.log(request.host);
-    Logger.debug(request.hostname);
-
+  findOne(@Param('id') id: number, @HostParam('host') host: string) {
     return `This actions returns a #${id} cat from host ${host}`;
   }
 }
