@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Post } from '@nestjs/common';
 import { CatsService } from './cats.service';
 import { Cat } from './interfaces/cat.interface';
-import { CreateCatDto } from './dto/create-cat.dto';
+import { ForbiddenException } from '../forbidden.exception';
 
 @Controller({ path: 'cats' })
 export class CatsController {
@@ -9,11 +9,14 @@ export class CatsController {
 
   @Get()
   findAll(): Cat[] {
-    return this.catsService.findAll();
+    throw new BadRequestException('Something bad happened', {
+      cause: new Error(),
+      description: 'Some error description',
+    });
   }
 
   @Post()
-  create(@Body() createCatDto: CreateCatDto) {
-    this.catsService.create(createCatDto);
+  create() {
+    throw new ForbiddenException();
   }
 }
