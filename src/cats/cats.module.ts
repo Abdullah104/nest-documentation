@@ -6,8 +6,7 @@ import { CatsController } from './cats.controller';
 @Module({
   providers: [CatsService],
   controllers: [CatsController],
-  exports: [CatsService],
 })
 export class CatsModule {
-  constructor(private readonly catsService: CatsService) {}
+  constructor() {}
 }
